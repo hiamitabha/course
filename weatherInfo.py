@@ -4,11 +4,20 @@ import json
 import threading
 import anki_vector
 import time
+import asyncio
 from anki_vector.events import Events
 from anki_vector.user_intent import UserIntent, UserIntentEvent
+from anki_vector import audio
+from anki_vector import degrees
+try:
+    from PIL import Image
+except ImportError:
+    sys.exit("Cannot import from PIL: Do `pip3 install --user Pillow` to install")
 
-
+# Please get your own free key ay openweathermap.org. Please do not reuse the key.
 _KEY =  'edf2a2443990c073b3d99f95818a0765'
+_UNITS = 'imperial'
+
 _WEATHER_URL = 'http://api.openweathermap.org/data/2.5/weather'
 _ONECALL_URL = 'http://api.openweathermap.org/data/2.5/onecall'
 
@@ -28,7 +37,7 @@ def getWeatherReport(location):
    _PARAMS = {'lat': lat,
               'lon': long,
               'APPID': _KEY,
-     'units': 'imperial'}
+     'units': _UNITS}
    r = requests.get(url=_ONECALL_URL, params=_PARAMS)
 
    resultOneCall = r.json()
@@ -121,14 +130,14 @@ def processWeather(location):
       uvi.append(item.get('uvi', 0))
       snow.append(item.get('snow', 0))
       clouds.append(item.get('clouds', 0))
-   summary.append("The wind speed will typically be between"
-                  " %d to %d miles per hour" % (getLongestBreak(windSpeed)))
-   summary.append("Humidity will typically vary between"
-                  " %d to %d percent" % (getLongestBreak(humidity)))
    summary.append("Max temperature will be %d Fahrenheit" %(max(temp)))
    summary.append("Will feel like %d" %(max(feelsLike)))
    summary.append("Min temperature will be %d Fahrenheit" %(min(temp)))
    summary.append("Will feel like %d" %(min(feelsLike)))
+   summary.append("The wind speed will typically be between"
+                  " %d to %d miles per hour" % (getLongestBreak(windSpeed)))
+   summary.append("Humidity will typically vary between"
+                  " %d to %d percent" % (getLongestBreak(humidity)))
    (rainIndex, value) = firstNonZeroIndexAndValue(rain) 
    if rainIndex != -1:
       summary.append("%d millimeter rain expected %s" %(value, turnIndexToDay(rainIndex)))
@@ -141,7 +150,10 @@ def processWeather(location):
    mostCommon = max(set(weatherType), key = weatherType.count)
    return (summary, translateToAnimation(mostCommon))
 
-def on_user_intent(robot, event_type, event, done):
+async def on_user_intent(robot, event_type, event):
+    """
+        Process the user intent
+    """
     user_intent = UserIntent(event)
     if user_intent.intent_event is UserIntentEvent.weather_response:
         data = json.loads(user_intent.intent_data)
@@ -149,20 +161,27 @@ def on_user_intent(robot, event_type, event, done):
         print(f"Weather report for {data['speakableLocationString']}: "
               f"{data['condition']}, temperature {data['temperature']} degrees")
         (summary, animation) = processWeather(data['speakableLocationString'])
-        for item in summary:
-           robot.behavior.say_text(item)
-        robot.anim.play_animation(animation)
-        done.set()
+        # Load an image
+        image_file = Image.open('./cloudy.png')
 
+        # Convert the image to the format used by the Screen
+        screen_data = anki_vector.screen.convert_image_to_screen_data(image_file)
+
+        await asyncio.wrap_future(robot.behavior.look_around_in_place())
+        await asyncio.wrap_future(robot.behavior.set_head_angle(degrees(35.0)))
+        for item in summary[:-1]:
+           await asyncio.wrap_future(robot.behavior.say_text(item))
+        
+        duration_s = 5.0
+        await asyncio.wrap_future(robot.screen.set_screen_with_image_data(screen_data, duration_s))
+        await asyncio.wrap_future(robot.behavior.say_text(summary[-1]))
+        await asyncio.wrap_future(robot.anim.play_animation(animation))
 
 if __name__ == '__main__':
-   with anki_vector.Robot() as robot:
-      done = threading.Event()
-      robot.events.subscribe(on_user_intent, Events.user_intent, done)
+   with anki_vector.AsyncRobot() as robot:
+      lowerVolume = robot.audio.set_master_volume(audio.RobotVolumeLevel.LOW)
+      lowerVolume.result()
+      robot.events.subscribe(on_user_intent, Events.user_intent)
       print('------ Vector is waiting to be asked "Hey Vector!  What is the weather report?" Press ctrl+c to exit early ------')
-      try:
-         if not done.wait(timeout=60):
-            print('------ Vector never heard a request for the weather report ------')
-      except KeyboardInterrupt:
-         pass
+      time.sleep(120)
 

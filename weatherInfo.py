@@ -8,7 +8,7 @@ import asyncio
 from anki_vector.events import Events
 from anki_vector.user_intent import UserIntent, UserIntentEvent
 from anki_vector import audio
-from anki_vector import degrees
+from anki_vector.util import degrees
 try:
     from PIL import Image
 except ImportError:
@@ -179,7 +179,7 @@ async def on_user_intent(robot, event_type, event):
 
 if __name__ == '__main__':
    with anki_vector.AsyncRobot() as robot:
-      lowerVolume = robot.audio.set_master_volume(audio.RobotVolumeLevel.LOW)
+      lowerVolume = robot.audio.set_master_volume(audio.RobotVolumeLevel.MEDIUM)
       lowerVolume.result()
       robot.events.subscribe(on_user_intent, Events.user_intent)
       print('------ Vector is waiting to be asked "Hey Vector!  What is the weather report?" Press ctrl+c to exit early ------')

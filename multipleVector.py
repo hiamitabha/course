@@ -40,7 +40,6 @@ def parse():
    return args
 
 def main():
-   time.sleep(5)
    args = parse()
    robot1 = connect(args.serial1)
    robot2 = connect(args.serial2) 
@@ -48,6 +47,7 @@ def main():
    anim2 = robot2.anim.play_animation(args.animation2)
    anim1.result()
    anim2.result()
+   time.sleep(2)
    disconnect(robot1)
    disconnect(robot2)
 

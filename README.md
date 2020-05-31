@@ -10,3 +10,36 @@ To run each of these programs you would need:
 Please report any bugs that you find while running these programs.
 Happy learning!
 
+A short description of each file:
+
+genDynamicAnimation.py
+
+Shows how to generate a composite animation from 2 or more animations
+
+kernel_vector_sign_language.ipynb
+
+Notebook showing how to train Vector to recognize the human sign language
+
+label.py
+
+How too label human signs
+
+move_cube.py
+
+Ask Vector to move a cube
+
+multipleVector.py
+
+Use two vectors to compare different animations
+
+playAnimation.py
+
+Play an animation
+
+vectorAnimationsList.txt
+
+Complete listing of Vector's animations
+
+weatherInfo.py
+
+Ask Vector to give a detailed weather report.

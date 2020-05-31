@@ -1,5 +1,5 @@
 This is a repository of the code companion for the online course: 'Learn AI
-with a Robot' available at https://robotics.thinkific.com
+with a Robot' available at https://robotics.thinkific.com The first 25% of the course is FREE. You can buy the remaining 75% of the course.
 
 To run each of these programs you would need:
 

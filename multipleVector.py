@@ -2,25 +2,57 @@ import anki_vector
 import asyncio
 import time
 import argparse
+from multiprocessing import Pool
 
 #Animations
 _ANIM1 = 'anim_fistbump_requesttwice_01'
 _ANIM2 = 'anim_fistbump_requestoncelong_01'
 
-def connect(serial):
+def connectAsync(serial):
    # Create a Robot object
    robot = anki_vector.AsyncRobot(serial)
    # Connect to Vector
    robot.connect()
-   # Start saying text asynchronously
-   #sayFuture = robot.behavior.say_text("Hello World")
-   # Make sure text has been spoken
-   #sayFuture.result()
+   return robot
+
+def connectSync(serial):
+   # Create a Robot object
+   robot = anki_vector.Robot(serial)
+   # Connect to Vector
+   robot.connect()
    return robot
 
 def disconnect(robot):
    # Disconnect from Vector
    robot.disconnect()
+
+def playAnimationsAsync(serial, animation):
+   robot1 = connectAsync(serial[0])
+   robot2 = connectAsync(serial[1]) 
+   anim1 = robot1.anim.play_animation(animation[0])
+   anim2 = robot2.anim.play_animation(animation[1])
+   anim1.result()
+   anim2.result()
+   disconnect(robot1)
+   disconnect(robot2)
+
+def playAnimationOnRobotSync(serial, animation):
+   robot = connectSync(serial)
+   robot.anim.play_animation(animation)
+   disconnect(robot)
+   
+
+def playAnimationsMultiProcess(serial, animation):
+   inputs = zip(serial, animation)
+   print (inputs)
+   with Pool(2) as pool:
+      pool.map(playAnimationOnRobotSync, inputs)
+
+def playAnimationsSync(serial, animation):
+   inputs = zip(serial, animation)
+   print (inputs)
+   for (singleSerial, singleAnimation) in inputs:
+      playAnimationOnRobotSync(singleSerial, singleAnimation)
 
 def parse():
    parser = argparse.ArgumentParser()
@@ -41,15 +73,8 @@ def parse():
 
 def main():
    args = parse()
-   robot1 = connect(args.serial1)
-   robot2 = connect(args.serial2) 
-   anim1 = robot1.anim.play_animation(args.animation1)
-   anim2 = robot2.anim.play_animation(args.animation2)
-   anim1.result()
-   anim2.result()
-   time.sleep(2)
-   disconnect(robot1)
-   disconnect(robot2)
+   #playAnimationsAsync([args.serial1, args.serial2],[args.animation1, args.animation2])
+   playAnimationsSync([args.serial1, args.serial2],[args.animation1, args.animation2])
 
 if __name__ == "__main__":
    main() 

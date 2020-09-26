@@ -20,6 +20,10 @@ kernel_vector_sign_language.ipynb
 
 Notebook showing how to train Vector to recognize the human sign language
 
+TrainVectorWithYOLOv5.ipynb
+
+Notebook showing how to train Vector to do object detection, specifically, recognizing another Vector robot.
+
 label.py
 
 How too label human signs

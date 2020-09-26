@@ -29,9 +29,11 @@ def takePicture(robot, indexStart, indexEnd):
 if __name__ == "__main__":
    parser = argparse.ArgumentParser()
    parser.add_argument("-i", "--startIndex",
-                       help="Start Index for pictures")
+                       help="Start Index for pictures",
+                       default=1)
    parser.add_argument("-e", "--endIndex",
-                       help="End Index for pictures")
+                       help="End Index for pictures",
+                       default=20)
    args = anki_vector.util.parse_command_args(parser)
    with anki_vector.Robot(serial=args.serial) as robot:
       robot.behavior.set_head_angle(degrees(3.0))

@@ -43,7 +43,7 @@ def checkIfChargeRequired(robot):
       # if we cannot measure the voltage, we dont charge
       return isChargingRequired
    print (batteryVoltage)
-   if (batteryVoltage < 3.95):
+   if (batteryVoltage < 3.7):
       isChargingRequired = True
    return isChargingRequired
 

@@ -16,6 +16,10 @@ import anki_vector
 import asyncio
 import time
 import argparse
+import random
+from datetime import datetime
+from anki_vector.util import distance_mm, speed_mmps
+from anki_vector.util import degrees
 
 chargerOccupied = False
 
@@ -26,7 +30,7 @@ def connectAsync(serial):
    robot.connect()
    return robot
 
-def checkIfChargeRequired(robot):
+def checkIfChargeRequired(robot, id):
    """Measure the battery voltage and check if robot requires charging
    """
    global chargerOccupied
@@ -42,8 +46,10 @@ def checkIfChargeRequired(robot):
       batteryVoltage = None
       # if we cannot measure the voltage, we dont charge
       return isChargingRequired
-   print (batteryVoltage)
-   if (batteryVoltage < 3.7):
+   now = datetime.now()
+   currentTime = now.strftime("%H:%M:%S")
+   print (f'{id}:{currentTime}:{batteryVoltage}')
+   if (batteryVoltage < 3.75):
       isChargingRequired = True
    return isChargingRequired
 
@@ -52,7 +58,13 @@ async def driveOffCharger(robot):
    """
    status = robot.status
    if status.is_on_charger:
-      robot.behavior.drive_off_charger()
+      await robot.behavior.drive_off_charger()
+      await robot.behavior.drive_straight(distance_mm(100), speed_mmps(100))
+      #Generate random number between 0 and 5 and multiply by 60 degrees to have random rotations
+      #The purpose of this is to ensure that the Vector robots do not collide
+      rotate = random.randint(0,5)
+      await robot.behavior.turn_in_place(degrees(rotate * 60))
+      await robot.behavior.drive_straight(distance_mm(150), speed_mmps(100))
       return
    else:
       return 
@@ -71,17 +83,19 @@ async def worker(robot, id, lock):
    """Connect to the robots and run
    """
    print ("Starting worker for robot %d" %id)
-   if not checkIfChargeRequired(robot):
+   if not checkIfChargeRequired(robot, id):
       await driveOffCharger(robot)
    else:
       with await lock:
+         print("Acquired lock")
          await returnToCharger(robot)
          chargerOccupied = True
          print ("Charger occupied by robot %d" %id)
          time.sleep(120)
          await driveOffCharger(robot)
          chargerOccupied = False
-   print ("Ending worker for robot %d" %id)
+         print ("Released lock")
+   print("Ending worker for robot %d" %id)
          
 def parse():
    parser = argparse.ArgumentParser()

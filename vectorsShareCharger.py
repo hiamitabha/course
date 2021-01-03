@@ -58,13 +58,16 @@ async def driveOffCharger(robot):
    """
    status = robot.status
    if status.is_on_charger:
-      await robot.behavior.drive_off_charger()
-      await robot.behavior.drive_straight(distance_mm(100), speed_mmps(100))
-      #Generate random number between 0 and 5 and multiply by 60 degrees to have random rotations
+      robot.behavior.drive_off_charger()
+      time.sleep(10)
+      robot.behavior.drive_straight(distance_mm(150), speed_mmps(150))
+      time.sleep(10)
+      #iGenerate random number between 0 and 5 and multiply by 60 degrees to have random rotations
       #The purpose of this is to ensure that the Vector robots do not collide
-      rotate = random.randint(0,5)
-      await robot.behavior.turn_in_place(degrees(rotate * 60))
-      await robot.behavior.drive_straight(distance_mm(150), speed_mmps(100))
+      rotate = random.randint(0,2)
+      robot.behavior.turn_in_place(degrees(rotate * 60))
+      time.sleep(10)
+      robot.behavior.drive_straight(distance_mm(150), speed_mmps(100))
       return
    else:
       return 

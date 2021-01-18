@@ -1,0 +1,13 @@
+The set of programs in this directory integrate Vector with the OpenAI CLIP library
+
+Details about OpenAI CLIP are available at: https://github.com/openai/CLIP
+
+To run these programs, in addition to installing the anki_vector package, please do the following steps...
+
+1. Clone CLIP from https://github.com/openai/CLIP
+2. Install the dependencies for CLIP by the following instructions...
+   a. conda install --yes -c pytorch pytorch=1.7.1 torchvision cpuonly
+   b. pip install ftfy regex tqdm
+3. Run the program as follows:
+   python detectPicture.py --serial 0080230c -c "football,plush football"
+   

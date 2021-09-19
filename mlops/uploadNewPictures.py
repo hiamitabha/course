@@ -26,6 +26,10 @@ import json
 from PIL import Image
 from anki_vector.util import degrees
 
+
+"""_DATASET_NAME is the name of the dataset where the images will be uploaded.
+You must pre-create this dataset using Roboflow UI prior to using it in a script
+"""
 _DATASET_NAME = "vectorcompletedataset"
 
 def uploadImageToRoboflow(image, imageName, roboflowKey):

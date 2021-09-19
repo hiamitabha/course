@@ -1,4 +1,5 @@
-"""./takePicture.py can be used to take pictures from the Anki robot's camera
+"""./uploadNewPictures.py can be used to take pictures from the
+Anki robot's camera and upload it to the Roboflow dataset
 """
 # Copyright (c) 2021 Amitabha Banerjee
 #
@@ -25,6 +26,8 @@ import json
 from PIL import Image
 from anki_vector.util import degrees
 
+_DATASET_NAME = "vectorcompletedataset"
+
 def uploadImageToRoboflow(image, imageName, roboflowKey):
    """Code to upload an image to Roboflow.
       Code is borrowed from the example at:
@@ -41,7 +44,9 @@ def uploadImageToRoboflow(image, imageName, roboflowKey):
 
    # Construct the URL
    upload_url = "".join([
-      "https://api.roboflow.com/dataset/vectorcompletedataset/upload",
+      "https://api.roboflow.com/dataset/",
+      _DATASET_NAME,
+      "/upload",
       "?api_key=",
       roboflowKey,
       "&name=",
@@ -55,7 +60,7 @@ def uploadImageToRoboflow(image, imageName, roboflowKey):
        })
 
    res = result.json()
-   success = res['success']
+   success = res.get('success')
    if not success:
       print(res)
    else:

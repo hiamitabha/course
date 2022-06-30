@@ -22,12 +22,14 @@ import base64
 import io
 import numpy as np
 import cv2
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 import threading
 
 from anki_vector.util import degrees
 from anki_vector import events
 from util import loadKey, getDatasetName, getModelUuid
+
+_SHOW_BOUNDING_BOX = True
 
 def validatePicture(image, dataset, modelUuid, key):
    """Run inference on the provided image with the help of Roboflow
@@ -53,21 +55,44 @@ def validatePicture(image, dataset, modelUuid, key):
       modelUuid,
       "?api_key=",
       key, 
-      "&format=image" 
+      "&format=json"
    ])
 
+
    # POST request to the API
-   resp = requests.post(upload_url, data=img_str, headers={
-        "Content-Type": "application/x-www-form-urlencoded"
-   }, stream=True).raw
+   headers = {"Content-Type": "application/x-www-form-urlencoded"}
+   r = requests.post(upload_url, data=img_str, headers=headers)
+   preds = r.json()
+   print (preds)
+   detections = preds['predictions']
 
-   # Parse result image and show it on screen
-   image = np.asarray(bytearray(resp.read()), dtype="uint8")
-   image = cv2.imdecode(image, cv2.IMREAD_COLOR)
-   cv2.imshow('Inference',image)
-   cv2.waitKey()
-   cv2.destroyWindow('Inference')
+   draw = ImageDraw.Draw(image)
+   font = ImageFont.load_default()
+   if _SHOW_BOUNDING_BOX:
+      for box in detections:
+         color = "#4892EA"
+         x1 = box['x'] - box['width'] / 2
+         x2 = box['x'] + box['width'] / 2
+         y1 = box['y'] - box['height'] / 2
+         y2 = box['y'] + box['height'] / 2
+         draw.rectangle([
+            x1, y1, x2, y2
+         ], outline=color, width=5)
 
+         text = box['class']
+         text_size = font.getsize(text)
+
+         #set button size + 10px margins
+         button_size = (text_size[0]+20, text_size[1]+20)
+         button_img = Image.new('RGBA', button_size, color)
+         # put text on button with 10px margins
+         button_draw = ImageDraw.Draw(button_img)
+         button_draw.text((10, 10), text, font=font, fill=(255,255,255,255))
+
+         # put button on source image in position (0, 0)
+         image.paste(button_img, (int(x1), int(y1)))
+   image.show()
+   time.sleep(2)
 
 def on_new_raw_camera_image(robot, event_type, event, done,
                             dataset, modelId, key):

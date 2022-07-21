@@ -10,7 +10,15 @@ To run each of these programs you would need:
 Please report any bugs that you find while running these programs.
 Happy learning!
 
-A short description of each file:
+A short description of the folders:
+
+Notebooks folder contains nice examples for you to learn how to train machine learning models on different datasets based of Anki Vector. Examples are illustrated on Jupyter notebooks, and can be easily run on Google Colab for the reader to understand how to train machine learning models.
+
+Clip folder has files which show how to integrate Vector with the OpenAI CLIP model.
+
+MLOps folder has files which show how to perform ML Operations with examples of deploying a production model for Vector
+
+A short description of spome of the files:
 
 genDynamicAnimation.py
 

@@ -27,31 +27,66 @@ Use python 3.7+
 
 import anki_vector
 import time
+import argparse
 
-_ANIMATION1 = 'anim_dancebeat_getout_01'
-_ANIMATION2 = 'anim_fistbump_requestoncelong_01'
+_ANIMATION1 = 'anim_holiday_hyn_confetti_01'
+_ANIMATION2 = 'anim_fistbump_requesttwice_01'
+_ANIMATION3 = 'anim_dancebeat_getout_02'
 
 # Create the robot connection
-with anki_vector.AsyncRobot() as robot:
-    # Drive of charger
-    drive_off_charger = robot.behavior.drive_off_charger()
-    drive_off_charger.result()
-   
-    # Play the animations separately first 
-    # Here is the list of animations 
-    announce = robot.behavior.say_text("Separately")
-    announce.result() 
-    animation1 = robot.anim.play_animation(_ANIMATION1)
-    animation1.result()
-    animation2= robot.anim.play_animation(_ANIMATION2)
-    animation2.result()
-    announceTogether = robot.behavior.say_text("Together")
-    animation1_without_lift = robot.anim.play_animation(_ANIMATION1,
-                                                        ignore_lift_track=False) 
-    animation2_again = robot.anim.play_animation(_ANIMATION2)
-    announceTogether.result()
-    animation1_without_lift.result()
-    animation2_again.result()
+def play_animations(args):
+    """
+    Play the animations provided in the input args
+    :param: Input arguments after post processing
+    """
+    with anki_vector.AsyncRobot(args.serial) as robot:
+        # Drive of charger
+        drive_off_charger = robot.behavior.drive_off_charger()
+        drive_off_charger.result()
 
-    announce_finish = robot.behavior.say_text("Done with all animations")
-    announce_finish.result()
+        # Play the animations separately first
+        # Here is the list of animations
+        announce = robot.behavior.say_text("Separately")
+        announce.result()
+        animation1 = robot.anim.play_animation(args.animationwithoutlift)
+        animation1.result()
+        animation2= robot.anim.play_animation(args.animationwithoutbody)
+        animation2.result()
+        animation3= robot.anim.play_animation(args.animationwithouthead)
+        animation3.result()
+        announceTogether = robot.behavior.say_text("Now Together")
+        animation_without_lift = robot.anim.play_animation(args.animationwithoutlift,
+                                                            ignore_lift_track=True)
+        animation_without_body = robot.anim.play_animation(args.animationwithoutbody,
+                                                            ignore_body_track=True)
+        animation_without_head = robot.anim.play_animation(args.animationwithouthead,
+                                                            ignore_head_track=True)
+        announceTogether.result()
+        animation1_without_lift.result()
+        animation2_without_body.result()
+        animation3_without_head.result()
+
+        announce_finish = robot.behavior.say_text("Done with all animations")
+        announce_finish.result()
+
+def parse():
+    """
+    Parse input arguments
+    """
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-l", "--animationwithoutlift",
+                       help="Animation to be played without the lift track",
+                       default=_ANIMATION1)
+    parser.add_argument("-b", "--animationwithoutbody",
+                        help="Animation to be played without the body track",
+                        default=_ANIMATION2)
+    parser.add_argument("-he", "--animationwithouthead",
+                        help="Animation to be played without the head track",
+                        default=_ANIMATION3)
+    args = anki_vector.util.parse_command_args(parser)
+    return args
+
+if __name__ == "__main__":
+    args = parse()
+    play_animations(args)
+

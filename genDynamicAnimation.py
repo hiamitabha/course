@@ -62,10 +62,13 @@ def play_animations(args):
         animation_without_head = robot.anim.play_animation(args.animationwithouthead,
                                                             ignore_head_track=True)
         announceTogether.result()
-        animation1_without_lift.result()
-        animation2_without_body.result()
-        animation3_without_head.result()
+        animation_without_lift.result()
+        animation_without_body.result()
+        animation_without_head.result()
+        # Add a time to sleep so that all animations can complete. Adjust this time
+        # if there are longer animations
 
+        time.sleep(15)
         announce_finish = robot.behavior.say_text("Done with all animations")
         announce_finish.result()
 

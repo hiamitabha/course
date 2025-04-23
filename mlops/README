@@ -1,1 +1,15 @@
-This directory contains files which would demonstrate MLOps with tools developed/provided by Roboflow
+This directory contains files which would demonstrate MLOps with tools developed/provided by Roboflow. 
+You can try each of these examples with an Anki Vector robot. To run these examples, you would need:
+
+1) The Vector Python SDK. You would need the SDK in the PYTHONPATH.
+2) A Roboflow Key which you can get for free at roboflow.com
+
+Here are some examples of programs you could run
+
+1) python3 examinePicture.py --serial <Robot serial number>
+
+This will open the robot's camera, take images, and run inference on the image, hopefully detecting some objects depending on the model used. 
+You can specify the Machine Learning model from Roboflow Universe in utils.py. Simply modify the folowing two lines:
+
+_DATASET_NAME = "rock-paper-scissors-sxsw"
+_MODEL_UUID = "14" 
